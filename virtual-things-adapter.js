@@ -202,7 +202,6 @@ const dimmableLight = {
 };
 
 const VIRTUAL_THINGS = [
-  thing,
   onOffColorLight,
   multiLevelSwitch,
   dimmableColorLight,
@@ -211,7 +210,8 @@ const VIRTUAL_THINGS = [
   multiLevelSensor,
   smartPlug,
   onOffLight,
-  dimmableLight
+  dimmableLight,
+  thing
 ];
 
 /**

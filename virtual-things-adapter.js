@@ -157,14 +157,14 @@ const thing = {
       }
     },
     {
-      name: 'bareNumberProperty',
+      name: 'numberProperty',
       value: 12,
       metadata: {
         type: 'number'
       }
     },
     {
-      name: 'unitNumberProperty',
+      name: 'numberUnitProperty',
       value: 34,
       metadata: {
         type: 'number',
@@ -172,7 +172,7 @@ const thing = {
       }
     },
     {
-      name: 'fullNumberProperty',
+      name: 'numberUnitMinMaxProperty',
       value: 56,
       metadata: {
         type: 'number',

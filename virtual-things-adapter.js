@@ -272,6 +272,63 @@ const dimmableLight = {
   events: [],
 };
 
+const doorSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['DoorSensor'],
+  name: 'Virtual Door Sensor',
+  properties: [
+    {
+      name: 'open',
+      value: false,
+      metadata: {
+        label: 'Open',
+        type: 'boolean',
+        '@type': 'OpenProperty',
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const motionSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['MotionSensor'],
+  name: 'Virtual Motion Sensor',
+  properties: [
+    {
+      name: 'motion',
+      value: false,
+      metadata: {
+        label: 'Motion',
+        type: 'boolean',
+        '@type': 'MotionProperty',
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const pushButton = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['PushButton'],
+  name: 'Virtual Push Button',
+  properties: [
+    {
+      name: 'pushed',
+      value: false,
+      metadata: {
+        label: 'Pushed',
+        type: 'boolean',
+        '@type': 'PushedProperty',
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 const thing = {
   type: 'thing',
   '@context': 'https://iot.mozilla.org/schemas',
@@ -472,6 +529,9 @@ const VIRTUAL_THINGS = [
   actionsEventsThing,
   onOffSwitchWithPin,
   onOffColorTemperatureLight,
+  doorSensor,
+  motionSensor,
+  pushButton,
 ];
 
 /**

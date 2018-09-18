@@ -548,10 +548,14 @@ class VirtualThingsProperty extends Property {
    * @return {Promise} a promise which resolves to the updated value.
    */
   setValue(value) {
-    return new Promise((resolve) => {
-      this.setCachedValue(value);
-      resolve(this.value);
-      this.device.notifyPropertyChanged(this);
+    return new Promise((resolve, reject) => {
+      if (this.readOnly) {
+        reject('Read-only property');
+      } else {
+        this.setCachedValue(value);
+        resolve(this.value);
+        this.device.notifyPropertyChanged(this);
+      }
     });
   }
 }

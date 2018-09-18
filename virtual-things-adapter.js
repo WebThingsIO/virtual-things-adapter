@@ -35,6 +35,7 @@ function bool() {
       label: 'On/Off',
       type: 'boolean',
       '@type': 'BooleanProperty',
+      readOnly: true,
     },
   };
 }
@@ -91,7 +92,7 @@ function brightness() {
   };
 }
 
-function level() {
+function level(readOnly) {
   return {
     name: 'level',
     value: 0,
@@ -100,6 +101,7 @@ function level() {
       type: 'number',
       '@type': 'LevelProperty',
       unit: 'percent',
+      readOnly,
     },
   };
 }
@@ -150,7 +152,7 @@ const multiLevelSwitch = {
   '@type': ['OnOffSwitch', 'MultiLevelSwitch'],
   name: 'Virtual Multi-level Switch',
   properties: [
-    level(),
+    level(false),
     on(),
   ],
   actions: [],
@@ -188,7 +190,7 @@ const multiLevelSensor = {
   name: 'Virtual Multi-level Sensor',
   properties: [
     bool(),
-    level(),
+    level(true),
   ],
   actions: [],
   events: [],
@@ -201,7 +203,7 @@ const smartPlug = {
   name: 'Virtual Smart Plug',
   properties: [
     on(),
-    level(),
+    level(false),
     {
       name: 'instantaneousPower',
       value: 0,
@@ -284,6 +286,7 @@ const doorSensor = {
         label: 'Open',
         type: 'boolean',
         '@type': 'OpenProperty',
+        readOnly: true,
       },
     },
   ],
@@ -303,6 +306,7 @@ const motionSensor = {
         label: 'Motion',
         type: 'boolean',
         '@type': 'MotionProperty',
+        readOnly: true,
       },
     },
   ],
@@ -322,6 +326,7 @@ const pushButton = {
         label: 'Pushed',
         type: 'boolean',
         '@type': 'PushedProperty',
+        readOnly: true,
       },
     },
   ],

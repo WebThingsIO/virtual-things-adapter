@@ -1,9 +1,12 @@
 {
   "name": "virtual-things-adapter",
   "display_name": "Virtual Things",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "Mozilla IoT Virtual Things Adapter",
   "main": "index.js",
+  "scripts": {
+    "lint": "eslint ."
+  },
   "keywords": [
     "mozilla",
     "iot",
@@ -20,10 +23,9 @@
   "bugs": {
     "url": "https://github.com/mozilla-iot/virtual-things-adapter/issues"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "eslint": "^4.19.1"
+    "eslint": "^5.10.0"
   },
   "files": [
     "LICENSE",
@@ -33,7 +35,7 @@
   ],
   "moziot": {
     "api": {
-      "min": 1,
+      "min": 2,
       "max": 2
     },
     "plugin": true,

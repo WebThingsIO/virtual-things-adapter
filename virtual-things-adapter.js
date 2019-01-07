@@ -9,23 +9,12 @@
 
 'use strict';
 
-let Action, Adapter, Device, Event, Property;
-try {
-  Adapter = require('../adapter');
-  Device = require('../device');
-  Property = require('../property');
-} catch (e) {
-  if (e.code !== 'MODULE_NOT_FOUND') {
-    throw e;
-  }
-
-  const gwa = require('gateway-addon');
-  Action = gwa.Action;
-  Adapter = gwa.Adapter;
-  Device = gwa.Device;
-  Event = gwa.Event;
-  Property = gwa.Property;
-}
+const {
+  Adapter,
+  Device,
+  Event,
+  Property,
+} = require('gateway-addon');
 
 function bool() {
   return {
@@ -314,6 +303,49 @@ const motionSensor = {
   events: [],
 };
 
+const leakSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['LeakSensor'],
+  name: 'Virtual Leak Sensor',
+  properties: [
+    {
+      name: 'leak',
+      value: false,
+      metadata: {
+        label: 'Leak',
+        type: 'boolean',
+        '@type': 'LeakProperty',
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const temperatureSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['TemperatureSensor'],
+  name: 'Virtual Temperature Sensor',
+  properties: [
+    {
+      name: 'temperature',
+      value: 20,
+      metadata: {
+        label: 'Temperature',
+        type: 'number',
+        '@type': 'TemperatureProperty',
+        unit: 'degree celsius',
+        minimum: -20,
+        maximum: 50,
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 const pushButton = {
   '@context': 'https://iot.mozilla.org/schemas',
   '@type': ['PushButton'],
@@ -537,6 +569,8 @@ const VIRTUAL_THINGS = [
   doorSensor,
   motionSensor,
   pushButton,
+  leakSensor,
+  temperatureSensor,
 ];
 
 /**
@@ -597,16 +631,12 @@ class VirtualThingsDevice extends Device {
         new VirtualThingsProperty(this, prop.name, prop.metadata, prop.value));
     }
 
-    if (Action) {
-      for (const action of template.actions) {
-        this.addAction(action.name, action.metadata);
-      }
+    for (const action of template.actions) {
+      this.addAction(action.name, action.metadata);
     }
 
-    if (Event) {
-      for (const event of template.events) {
-        this.addEvent(event.name, event.metadata);
-      }
+    for (const event of template.events) {
+      this.addEvent(event.name, event.metadata);
     }
 
     this.adapter.handleDeviceAdded(this);

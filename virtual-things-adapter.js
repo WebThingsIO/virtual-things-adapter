@@ -552,6 +552,19 @@ const onOffSwitchWithPin = {
   },
 };
 
+const onOffSwitchWithCredentials = {
+  type: 'onOffSwitch',
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['OnOffSwitch'],
+  name: 'Virtual On/Off Switch (with credentials)',
+  properties: [
+    on(),
+  ],
+  actions: [],
+  events: [],
+  credentialsRequired: true,
+};
+
 const VIRTUAL_THINGS = [
   onOffColorLight,
   multiLevelSwitch,
@@ -571,6 +584,7 @@ const VIRTUAL_THINGS = [
   pushButton,
   leakSensor,
   temperatureSensor,
+  onOffSwitchWithCredentials,
 ];
 
 /**
@@ -624,6 +638,8 @@ class VirtualThingsDevice extends Device {
       this.pinRequired = false;
       this.pinPattern = false;
     }
+
+    this.credentialsRequired = !!template.credentialsRequired;
 
     for (const prop of template.properties) {
       this.properties.set(
@@ -693,6 +709,18 @@ class VirtualThingsAdapter extends Adapter {
         resolve();
       } else {
         reject('Invalid PIN');
+      }
+    });
+  }
+
+  setCredentials(deviceId, username, password) {
+    return new Promise((resolve, reject) => {
+      const device = this.getDevice(deviceId);
+      if (device && device.credentialsRequired && username === 'user' &&
+          password === 'password') {
+        resolve();
+      } else {
+        reject('Invalid credentials');
       }
     });
   }

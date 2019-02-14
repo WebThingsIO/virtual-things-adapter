@@ -9,12 +9,42 @@
 
 'use strict';
 
+const child_process = require('child_process');
+const fs = require('fs');
 const {
   Adapter,
   Device,
   Event,
   Property,
 } = require('gateway-addon');
+const mkdirp = require('mkdirp');
+const os = require('os');
+const path = require('path');
+
+const DEBUG = false;
+
+const proc = child_process.spawnSync(
+  'ffmpeg',
+  ['-version'],
+  {encoding: 'utf8'}
+);
+let ffmpegMajor = null, ffmpegMinor = null;
+if (proc.status === 0) {
+  const version = proc.stdout.split('\n')[0].split(' ')[2];
+  ffmpegMajor = parseInt(version.split('.')[0], 10);
+  ffmpegMinor = parseInt(version.split('.')[1], 10);
+}
+
+function getMediaPath() {
+  let profileDir;
+  if (process.env.hasOwnProperty('MOZIOT_HOME')) {
+    profileDir = process.env.MOZIOT_HOME;
+  } else {
+    profileDir = path.join(os.homedir(), '.mozilla-iot');
+  }
+
+  return path.join(profileDir, 'media', 'virtual-things');
+}
 
 function bool() {
   return {
@@ -565,6 +595,70 @@ const onOffSwitchWithCredentials = {
   credentialsRequired: true,
 };
 
+const camera = {
+  type: 'thing',
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['Camera'],
+  name: 'Virtual Camera',
+  properties: [
+    {
+      name: 'image',
+      value: null,
+      metadata: {
+        type: 'null',
+        '@type': 'ImageProperty',
+        label: 'Image',
+        readOnly: true,
+        links: [
+          {
+            rel: 'alternate',
+            href: '/media/virtual-things/image.png',
+            mediaType: 'image/png',
+          },
+        ],
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const videoCamera = {
+  type: 'thing',
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['VideoCamera'],
+  name: 'Virtual Video Camera',
+  properties: [
+    {
+      name: 'video',
+      value: null,
+      metadata: {
+        type: 'null',
+        '@type': 'VideoProperty',
+        label: 'Video',
+        readOnly: true,
+        links: [
+          {
+            rel: 'alternate',
+            href: '/media/virtual-things/index.mpd',
+            mediaType: 'application/dash+xml',
+          },
+        ],
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+if (ffmpegMajor !== null && ffmpegMajor >= 4) {
+  videoCamera.properties[0].metadata.links.push({
+    rel: 'alternate',
+    href: '/media/virtual-things/master.m3u8',
+    mediaType: 'application/vnd.apple.mpegurl',
+  });
+}
+
 const VIRTUAL_THINGS = [
   onOffColorLight,
   multiLevelSwitch,
@@ -585,6 +679,8 @@ const VIRTUAL_THINGS = [
   leakSensor,
   temperatureSensor,
   onOffSwitchWithCredentials,
+  camera,
+  videoCamera,
 ];
 
 /**
@@ -687,6 +783,87 @@ class VirtualThingsAdapter extends Adapter {
     adapterManager.addAdapter(this);
 
     this.addAllThings();
+
+    this.mediaDir = getMediaPath();
+    if (!fs.existsSync(this.mediaDir)) {
+      mkdirp.sync(this.mediaDir, {mode: 0o755});
+    }
+
+    this.copyImage();
+    this.startTranscode();
+  }
+
+  copyImage() {
+    const imagePath = path.join(this.mediaDir, 'image.png');
+
+    if (!fs.existsSync(imagePath)) {
+      const localImagePath = path.join(__dirname, 'static', 'image.png');
+      fs.copyFileSync(localImagePath, imagePath);
+    }
+  }
+
+  startTranscode() {
+    if (ffmpegMajor === null) {
+      return;
+    }
+
+    const videoPath = path.join(this.mediaDir, 'index.mpd');
+    const localVideoPath = path.join(__dirname, 'static', 'video.mp4');
+
+    const args = [
+      '-y',
+      '-re',
+      '-stream_loop', '-1',
+      '-i', localVideoPath,
+      '-window_size', '5',
+      '-extra_window_size', '10',
+      '-use_template', '1',
+      '-use_timeline', '1',
+    ];
+
+    if (ffmpegMajor >= 4) {
+      args.push(
+        '-streaming', '1',
+        '-hls_playlist', '1'
+      );
+    }
+
+    if (ffmpegMajor > 4 || (ffmpegMajor === 4 && ffmpegMinor >= 1)) {
+      args.push(
+        '-seg_duration', '2',
+        '-dash_segment_type', 'mp4'
+      );
+    }
+
+    args.push(
+      '-remove_at_exit', '1',
+      '-loglevel', 'quiet',
+      '-c:v', 'copy',
+      '-c:a', 'copy',
+      '-f', 'dash',
+      videoPath
+    );
+
+    this.transcodeProcess = child_process.spawn('ffmpeg', args);
+    this.transcodeProcess.on('close', this.startTranscode.bind(this));
+    this.transcodeProcess.on('error', console.error);
+    this.transcodeProcess.stdout.on('data', (data) => {
+      if (DEBUG) {
+        console.log(`ffmpeg: ${data}`);
+      }
+    });
+    this.transcodeProcess.stderr.on('data', (data) => {
+      if (DEBUG) {
+        console.error(`ffmpeg: ${data}`);
+      }
+    });
+  }
+
+  stopTranscode() {
+    if (this.transcodeProcess) {
+      this.transcodeProcess.kill();
+      this.transcodeProcess = null;
+    }
   }
 
   startPairing() {

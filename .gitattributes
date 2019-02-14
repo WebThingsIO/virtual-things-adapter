@@ -1,0 +1,2 @@
+static/image.png filter=lfs diff=lfs merge=lfs -text
+static/video.mp4 filter=lfs diff=lfs merge=lfs -text

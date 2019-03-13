@@ -651,6 +651,50 @@ const videoCamera = {
   events: [],
 };
 
+const alarm = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['Alarm'],
+  name: 'Virtual Alarm',
+  properties: [
+    {
+      name: 'alarm',
+      value: false,
+      metadata: {
+        label: 'Alarm',
+        type: 'boolean',
+        '@type': 'AlarmProperty',
+      },
+    },
+  ],
+  actions: [
+    {
+      name: 'trigger',
+      metadata: {
+        label: 'Trigger',
+        description: 'Trigger alarm',
+      },
+    },
+    {
+      name: 'silence',
+      metadata: {
+        label: 'Silence',
+        description: 'Silence alarm',
+      },
+    },
+  ],
+  events: [
+    {
+      name: 'alarmEvent',
+      metadata: {
+        description: 'An alarm event from a virtual thing',
+        type: 'string',
+        '@type': 'AlarmEvent',
+        readOnly: true,
+      },
+    },
+  ],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -681,6 +725,7 @@ const VIRTUAL_THINGS = [
   onOffSwitchWithCredentials,
   camera,
   videoCamera,
+  alarm,
 ];
 
 /**
@@ -759,11 +804,27 @@ class VirtualThingsDevice extends Device {
 
     action.start();
 
-    if (action.name === 'basic') {
-      // For the "basic" action, fire an event.
-      this.eventNotify(new Event(this,
-                                 'virtualEvent',
-                                 Math.floor(Math.random() * 100)));
+    switch (action.name) {
+      case 'basic':
+        this.eventNotify(new Event(this,
+                                   'virtualEvent',
+                                   Math.floor(Math.random() * 100)));
+        break;
+      case 'trigger': {
+        const prop = this.properties.get('alarm');
+        prop.setCachedValue(true);
+        this.notifyPropertyChanged(prop);
+        this.eventNotify(new Event(this,
+                                   'alarmEvent',
+                                   'Something happened!'));
+        break;
+      }
+      case 'silence': {
+        const prop = this.properties.get('alarm');
+        prop.setCachedValue(false);
+        this.notifyPropertyChanged(prop);
+        break;
+      }
     }
 
     action.finish();

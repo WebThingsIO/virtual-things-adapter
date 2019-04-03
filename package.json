@@ -1,7 +1,7 @@
 {
   "name": "virtual-things-adapter",
   "display_name": "Virtual Things",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Mozilla WebThings Gateway Virtual Things Adapter",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,8 @@
     "mkdirp": "^0.5.1"
   },
   "devDependencies": {
-    "eslint": "^5.15.1"
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0"
   },
   "files": [
     "LICENSE",
@@ -43,6 +44,21 @@
       "max": 2
     },
     "plugin": true,
-    "exec": "{nodeLoader} {path}"
+    "exec": "{nodeLoader} {path}",
+    "config": {
+      "randomizePropertyValues": false
+    },
+    "schema": {
+      "type": "object",
+      "required": [
+        "randomizePropertyValues"
+      ],
+      "properties": {
+        "randomizePropertyValues": {
+          "description": "Whether or not to periodically generate new property values",
+          "type": "boolean"
+        }
+      }
+    }
   }
 }

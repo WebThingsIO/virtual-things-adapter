@@ -10,6 +10,7 @@
 'use strict';
 
 const child_process = require('child_process');
+const crypto = require('crypto');
 const fs = require('fs');
 const {
   Adapter,
@@ -44,6 +45,26 @@ function getMediaPath() {
   }
 
   return path.join(profileDir, 'media', 'virtual-things');
+}
+
+function randomNumber(integer, min, max) {
+  if (typeof min === 'number' && typeof max === 'number') {
+    if (integer) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    return Math.random() * (max - min) + min;
+  }
+
+  const value = Math.random();
+
+  if (integer) {
+    return Math.floor(value);
+  }
+
+  return value;
 }
 
 function bool() {
@@ -92,8 +113,8 @@ function colorTemperature() {
       type: 'number',
       '@type': 'ColorTemperatureProperty',
       unit: 'kelvin',
-      min: 2500,
-      max: 9000,
+      minimum: 2500,
+      maximum: 9000,
     },
   };
 }
@@ -107,6 +128,8 @@ function brightness() {
       type: 'number',
       '@type': 'BrightnessProperty',
       unit: 'percent',
+      minimum: 0,
+      maximum: 100,
     },
   };
 }
@@ -120,6 +143,8 @@ function level(readOnly) {
       type: 'number',
       '@type': 'LevelProperty',
       unit: 'percent',
+      minimum: 0,
+      maximum: 100,
       readOnly,
     },
   };
@@ -437,8 +462,8 @@ const thing = {
       metadata: {
         type: 'number',
         unit: 'degrees',
-        min: 0,
-        max: 100,
+        minimum: 0,
+        maximum: 100,
       },
     },
     {
@@ -735,6 +760,46 @@ class VirtualThingsProperty extends Property {
   constructor(device, name, descr, value) {
     super(device, name, descr);
     this.setCachedValue(value);
+
+    if (device.adapter.randomizePropertyValues) {
+      this.interval = setInterval(() => {
+        let value;
+
+        switch (descr.type) {
+          case 'boolean':
+            value = Math.random() >= 0.5;
+            break;
+          case 'string': {
+            if (descr['@type'] === 'ColorProperty') {
+              const randomComponent = () => {
+                return randomNumber(true, 0, 255).toString(16).padStart(2, '0');
+              };
+              value =
+                `#${randomComponent()}${randomComponent()}${randomComponent()}`;
+            } else {
+              value = crypto.randomBytes(20).toString('hex');
+            }
+
+            break;
+          }
+          case 'number':
+          case 'integer':
+            value = randomNumber(
+              descr.type === 'integer',
+              descr.minimum,
+              descr.maximum
+            );
+            break;
+          default:
+            return;
+        }
+
+        if (value !== this.value) {
+          this.setCachedValue(value);
+          this.device.notifyPropertyChanged(this);
+        }
+      }, 30 * 1000);
+    }
   }
 
   /**
@@ -838,11 +903,13 @@ class VirtualThingsDevice extends Device {
  * Instantiates one virtual device per template
  */
 class VirtualThingsAdapter extends Adapter {
-  constructor(adapterManager, manifestName) {
-    super(adapterManager, 'virtual-things', manifestName);
+  constructor(adapterManager, manifest) {
+    super(adapterManager, 'virtual-things', manifest.name);
 
     adapterManager.addAdapter(this);
 
+    this.randomizePropertyValues =
+      manifest.moziot.config.randomizePropertyValues;
     this.addAllThings();
 
     this.mediaDir = getMediaPath();
@@ -961,6 +1028,18 @@ class VirtualThingsAdapter extends Adapter {
         reject('Invalid credentials');
       }
     });
+  }
+
+  unload() {
+    if (this.randomizePropertyValues) {
+      for (const device of Object.values(this.devices)) {
+        for (const property of device.properties.values()) {
+          clearInterval(property.interval);
+        }
+      }
+    }
+
+    return super.unload();
   }
 }
 

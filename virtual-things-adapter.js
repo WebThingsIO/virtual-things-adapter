@@ -14,6 +14,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const {
   Adapter,
+  Database,
   Device,
   Event,
   Property,
@@ -21,6 +22,7 @@ const {
 const mkdirp = require('mkdirp');
 const os = require('os');
 const path = require('path');
+const uuid = require('uuid/v4');
 
 const DEBUG = false;
 
@@ -72,7 +74,7 @@ function bool() {
     name: 'on',
     value: false,
     metadata: {
-      label: 'On/Off',
+      title: 'On/Off',
       type: 'boolean',
       '@type': 'BooleanProperty',
       readOnly: true,
@@ -85,7 +87,7 @@ function on() {
     name: 'on',
     value: false,
     metadata: {
-      label: 'On/Off',
+      title: 'On/Off',
       type: 'boolean',
       '@type': 'OnOffProperty',
     },
@@ -97,7 +99,7 @@ function color() {
     name: 'color',
     value: '#ffffff',
     metadata: {
-      label: 'Color',
+      title: 'Color',
       type: 'string',
       '@type': 'ColorProperty',
     },
@@ -109,7 +111,7 @@ function colorTemperature() {
     name: 'colorTemperature',
     value: 2500,
     metadata: {
-      label: 'Color Temperature',
+      title: 'Color Temperature',
       type: 'number',
       '@type': 'ColorTemperatureProperty',
       unit: 'kelvin',
@@ -124,7 +126,7 @@ function brightness() {
     name: 'level',
     value: 0,
     metadata: {
-      label: 'Brightness',
+      title: 'Brightness',
       type: 'number',
       '@type': 'BrightnessProperty',
       unit: 'percent',
@@ -139,7 +141,7 @@ function level(readOnly) {
     name: 'level',
     value: 0,
     metadata: {
-      label: 'Level',
+      title: 'Level',
       type: 'number',
       '@type': 'LevelProperty',
       unit: 'percent',
@@ -253,7 +255,7 @@ const smartPlug = {
       value: 0,
       metadata: {
         '@type': 'InstantaneousPowerProperty',
-        label: 'Power',
+        title: 'Power',
         type: 'number',
         unit: 'watt',
       },
@@ -263,7 +265,7 @@ const smartPlug = {
       value: 0,
       metadata: {
         '@type': 'VoltageProperty',
-        label: 'Voltage',
+        title: 'Voltage',
         type: 'number',
         unit: 'volt',
       },
@@ -273,7 +275,7 @@ const smartPlug = {
       value: 0,
       metadata: {
         '@type': 'CurrentProperty',
-        label: 'Current',
+        title: 'Current',
         type: 'number',
         unit: 'ampere',
       },
@@ -283,7 +285,7 @@ const smartPlug = {
       value: 0,
       metadata: {
         '@type': 'FrequencyProperty',
-        label: 'Frequency',
+        title: 'Frequency',
         type: 'number',
         unit: 'hertz',
       },
@@ -327,7 +329,7 @@ const doorSensor = {
       name: 'open',
       value: false,
       metadata: {
-        label: 'Open',
+        title: 'Open',
         type: 'boolean',
         '@type': 'OpenProperty',
         readOnly: true,
@@ -347,7 +349,7 @@ const motionSensor = {
       name: 'motion',
       value: false,
       metadata: {
-        label: 'Motion',
+        title: 'Motion',
         type: 'boolean',
         '@type': 'MotionProperty',
         readOnly: true,
@@ -367,7 +369,7 @@ const leakSensor = {
       name: 'leak',
       value: false,
       metadata: {
-        label: 'Leak',
+        title: 'Leak',
         type: 'boolean',
         '@type': 'LeakProperty',
         readOnly: true,
@@ -387,7 +389,7 @@ const temperatureSensor = {
       name: 'temperature',
       value: 20,
       metadata: {
-        label: 'Temperature',
+        title: 'Temperature',
         type: 'number',
         '@type': 'TemperatureProperty',
         unit: 'degree celsius',
@@ -410,7 +412,7 @@ const pushButton = {
       name: 'pushed',
       value: false,
       metadata: {
-        label: 'Pushed',
+        title: 'Pushed',
         type: 'boolean',
         '@type': 'PushedProperty',
         readOnly: true,
@@ -508,14 +510,14 @@ const actionsEventsThing = {
     {
       name: 'basic',
       metadata: {
-        label: 'No Input',
+        title: 'No Input',
         description: 'An action with no inputs, fires an event',
       },
     },
     {
       name: 'single',
       metadata: {
-        label: 'Single Input',
+        title: 'Single Input',
         description: 'An action with a single, non-object input',
         input: {
           type: 'number',
@@ -525,7 +527,7 @@ const actionsEventsThing = {
     {
       name: 'multiple',
       metadata: {
-        label: 'Multiple Inputs',
+        title: 'Multiple Inputs',
         description: 'An action with mutiple, optional inputs',
         input: {
           type: 'object',
@@ -543,7 +545,7 @@ const actionsEventsThing = {
     {
       name: 'advanced',
       metadata: {
-        label: 'Advanced Inputs',
+        title: 'Advanced Inputs',
         description: 'An action with many inputs, some required',
         input: {
           type: 'object',
@@ -632,7 +634,7 @@ const camera = {
       metadata: {
         type: 'null',
         '@type': 'ImageProperty',
-        label: 'Image',
+        title: 'Image',
         readOnly: true,
         links: [
           {
@@ -660,7 +662,7 @@ const videoCamera = {
       metadata: {
         type: 'null',
         '@type': 'VideoProperty',
-        label: 'Video',
+        title: 'Video',
         readOnly: true,
         links: [
           {
@@ -685,7 +687,7 @@ const alarm = {
       name: 'alarm',
       value: false,
       metadata: {
-        label: 'Alarm',
+        title: 'Alarm',
         type: 'boolean',
         '@type': 'AlarmProperty',
       },
@@ -695,14 +697,14 @@ const alarm = {
     {
       name: 'trigger',
       metadata: {
-        label: 'Trigger',
+        title: 'Trigger',
         description: 'Trigger alarm',
       },
     },
     {
       name: 'silence',
       metadata: {
-        label: 'Silence',
+        title: 'Silence',
         description: 'Silence alarm',
       },
     },
@@ -1005,6 +1007,116 @@ class VirtualThingsAdapter extends Adapter {
         new VirtualThingsDevice(this, id, VIRTUAL_THINGS[i]);
       }
     }
+
+    const db = new Database(this.packageName);
+    db.open().then(() => {
+      return db.loadConfig();
+    }).then((config) => {
+      if (config.customThings) {
+        for (const descr of config.customThings) {
+          if (!descr.id) {
+            descr.id = uuid();
+          }
+
+          const id = `virtual-things-custom-${descr.id}`;
+          if (this.devices[id]) {
+            continue;
+          }
+
+          for (const property of descr.properties) {
+            // Clean up properties
+            if (!['number', 'integer'].includes(property.type)) {
+              delete property.unit;
+              delete property.minimum;
+              delete property.maximum;
+            } else {
+              if (!property.unit) {
+                delete property.unit;
+              }
+
+              if (property.minimum === property.maximum) {
+                delete property.minimum;
+                delete property.maximum;
+              }
+            }
+
+            switch (property.type) {
+              case 'integer':
+              case 'number':
+                property.default = Number(property.default);
+                break;
+              case 'boolean':
+                if (property.default === 'true') {
+                  property.default = true;
+                } else if (property.default === 'false') {
+                  property.default = false;
+                } else {
+                  property.default = !!property.default;
+                }
+                break;
+              case 'null':
+                property.default = null;
+                break;
+              case 'string':
+                // just in case
+                property.default = `${property.default}`;
+                break;
+            }
+          }
+
+          const newDescr = {
+            type: 'thing',
+            '@context': descr['@context'] || 'https://iot.mozilla.org/schemas',
+            '@type': descr['@type'] || [],
+            name: descr.name,
+            properties: [],
+            actions: [],
+            events: [],
+          };
+
+          for (const property of descr.properties) {
+            const prop = {
+              name: property.name,
+              value: property.default,
+              metadata: {
+                title: property.title,
+                type: property.type,
+              },
+            };
+
+            if (property.description) {
+              prop.metadata.description = property.description;
+            }
+
+            if (property['@type']) {
+              prop.metadata['@type'] = property['@type'];
+            }
+
+            if (property.unit) {
+              prop.metadata.unit = property.unit;
+            }
+
+            if (property.hasOwnProperty('minimum')) {
+              prop.metadata.minimum = property.minimum;
+            }
+
+            if (property.hasOwnProperty('maximum')) {
+              prop.metadata.maximum = property.maximum;
+            }
+
+            newDescr.properties.push(prop);
+          }
+
+          new VirtualThingsDevice(this, id, newDescr);
+        }
+
+        return db.saveConfig(config);
+      }
+    }).catch((e) => {
+      console.error('Database error:', e);
+    }).then(() => {
+      db.close();
+    });
   }
 
   setPin(deviceId, pin) {

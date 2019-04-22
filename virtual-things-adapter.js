@@ -1067,7 +1067,7 @@ class VirtualThingsAdapter extends Adapter {
           const newDescr = {
             type: 'thing',
             '@context': descr['@context'] || 'https://iot.mozilla.org/schemas',
-            '@type': descr['@context'] || [],
+            '@type': descr['@type'] || [],
             name: descr.name,
             properties: [],
             actions: [],

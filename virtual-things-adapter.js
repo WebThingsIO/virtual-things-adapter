@@ -722,6 +722,67 @@ const alarm = {
   ],
 };
 
+const energyMonitor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['EnergyMonitor'],
+  name: 'Virtual Energy Monitor',
+  properties: [
+    {
+      name: 'instantaneousPower',
+      value: 0,
+      metadata: {
+        '@type': 'InstantaneousPowerProperty',
+        title: 'Power',
+        type: 'number',
+        unit: 'watt',
+      },
+    },
+    {
+      name: 'voltage',
+      value: 0,
+      metadata: {
+        '@type': 'VoltageProperty',
+        title: 'Voltage',
+        type: 'number',
+        unit: 'volt',
+      },
+    },
+    {
+      name: 'current',
+      value: 0,
+      metadata: {
+        '@type': 'CurrentProperty',
+        title: 'Current',
+        type: 'number',
+        unit: 'ampere',
+      },
+    },
+    {
+      name: 'frequency',
+      value: 0,
+      metadata: {
+        '@type': 'FrequencyProperty',
+        title: 'Frequency',
+        type: 'number',
+        unit: 'hertz',
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const colorControl = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['ColorControl'],
+  name: 'Virtual Color Control',
+  properties: [
+    color(),
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -753,6 +814,8 @@ const VIRTUAL_THINGS = [
   camera,
   videoCamera,
   alarm,
+  energyMonitor,
+  colorControl,
 ];
 
 /**

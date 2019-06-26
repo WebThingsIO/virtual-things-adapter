@@ -1167,6 +1167,14 @@ class VirtualThingsAdapter extends Adapter {
               prop.metadata.maximum = property.maximum;
             }
 
+            if (property.hasOwnProperty('multipleOf')) {
+              prop.metadata.multipleOf = property.multipleOf;
+            }
+
+            if (property.hasOwnProperty('readOnly')) {
+              prop.metadata.readOnly = property.readOnly;
+            }
+
             newDescr.properties.push(prop);
           }
 

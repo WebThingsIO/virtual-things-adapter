@@ -123,7 +123,7 @@ function colorTemperature() {
 
 function brightness() {
   return {
-    name: 'level',
+    name: 'brightness',
     value: 0,
     metadata: {
       title: 'Brightness',

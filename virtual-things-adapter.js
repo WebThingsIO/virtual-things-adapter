@@ -982,6 +982,7 @@ class VirtualThingsAdapter extends Adapter {
       mkdirp.sync(this.mediaDir, {mode: 0o755});
     }
 
+    this.unloading = false;
     this.copyImage();
     this.startTranscode();
   }
@@ -996,6 +997,10 @@ class VirtualThingsAdapter extends Adapter {
   }
 
   startTranscode() {
+    if (this.unloading) {
+      return;
+    }
+
     if (ffmpegMajor === null) {
       return;
     }
@@ -1222,6 +1227,8 @@ class VirtualThingsAdapter extends Adapter {
       }
     }
 
+    this.unloading = true;
+    this.stopTranscode();
     return super.unload();
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "virtual-things-adapter",
   "display_name": "Virtual Things",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Mozilla WebThings Gateway Virtual Things Adapter",
   "main": "index.js",
   "scripts": {
@@ -25,11 +25,11 @@
   },
   "dependencies": {
     "mkdirp": "^0.5.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.2",
-    "eslint": "^6.0.1"
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.2.2"
   },
   "files": [
     "LICENSE",

@@ -23,7 +23,6 @@ const manifest = require('./manifest.json');
 const mkdirp = require('mkdirp');
 const os = require('os');
 const path = require('path');
-const rimraf = require('rimraf');
 const storage = require('node-persist');
 const uuid = require('uuid/v4');
 
@@ -688,7 +687,22 @@ const videoCamera = {
       },
     },
   ],
-  actions: [],
+  actions: [
+    {
+      name: 'startStream',
+      metadata: {
+        title: 'Start Stream',
+        description: 'Start the video stream',
+      },
+    },
+    {
+      name: 'stopStream',
+      metadata: {
+        title: 'Stop Stream',
+        description: 'Stop the video stream',
+      },
+    },
+  ],
   events: [],
 };
 
@@ -1006,6 +1020,14 @@ class VirtualThingsDevice extends Device {
         this.notifyPropertyChanged(prop);
         break;
       }
+      case 'startStream': {
+        this.adapter.startTranscode();
+        break;
+      }
+      case 'stopStream': {
+        this.adapter.stopTranscode();
+        break;
+      }
     }
 
     action.finish();
@@ -1024,14 +1046,9 @@ class VirtualThingsAdapter extends Adapter {
 
     adapterManager.addAdapter(this);
 
-    // clean up old data files
-    const mediaDir = getMediaPath();
-    if (fs.existsSync(mediaDir)) {
-      rimraf(mediaDir, (e) => {
-        if (e) {
-          console.error('Failed to remove old media directory:', e);
-        }
-      });
+    this.mediaDir = getMediaPath();
+    if (!fs.existsSync(this.mediaDir)) {
+      mkdirp.sync(this.mediaDir, {mode: 0o755});
     }
 
     this.dataDir = getDataPath();
@@ -1047,7 +1064,7 @@ class VirtualThingsAdapter extends Adapter {
 
       if (this.config.persistPropertyValues) {
         return storage.init({
-          dir: path.join(this.dataDir, 'persist'),
+          dir: this.dataDir,
         });
       }
 
@@ -1056,12 +1073,11 @@ class VirtualThingsAdapter extends Adapter {
       this.addAllThings();
       this.unloading = false;
       this.copyImage();
-      this.startTranscode();
     }).catch(console.error);
   }
 
   copyImage() {
-    const imagePath = path.join(this.dataDir, 'image.png');
+    const imagePath = path.join(this.mediaDir, 'image.png');
 
     if (!fs.existsSync(imagePath)) {
       const localImagePath = path.join(__dirname, 'static', 'image.png');
@@ -1070,7 +1086,7 @@ class VirtualThingsAdapter extends Adapter {
   }
 
   startTranscode() {
-    if (this.unloading) {
+    if (this.unloading || this.transcodeProcess) {
       return;
     }
 
@@ -1078,7 +1094,7 @@ class VirtualThingsAdapter extends Adapter {
       return;
     }
 
-    const videoPath = path.join(this.dataDir, 'index.mpd');
+    const videoPath = path.join(this.mediaDir, 'index.mpd');
     const localVideoPath = path.join(__dirname, 'static', 'video.mp4');
 
     const args = [
@@ -1116,7 +1132,10 @@ class VirtualThingsAdapter extends Adapter {
     );
 
     this.transcodeProcess = child_process.spawn('ffmpeg', args);
-    this.transcodeProcess.on('close', this.startTranscode.bind(this));
+    this.transcodeProcess.on('close', () => {
+      this.transcodeProcess = null;
+      this.startTranscode();
+    });
     this.transcodeProcess.on('error', console.error);
     this.transcodeProcess.stdout.on('data', (data) => {
       if (DEBUG) {
@@ -1132,6 +1151,9 @@ class VirtualThingsAdapter extends Adapter {
 
   stopTranscode() {
     if (this.transcodeProcess) {
+      this.transcodeProcess.removeAllListeners();
+      this.transcodeProcess.stdout.removeAllListeners();
+      this.transcodeProcess.stderr.removeAllListeners();
       this.transcodeProcess.kill();
       this.transcodeProcess = null;
     }

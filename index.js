@@ -10,6 +10,6 @@
 
 const VirtualThingsAdapter = require('./virtual-things-adapter');
 
-module.exports = function(adapterManager, manifest) {
-  new VirtualThingsAdapter(adapterManager, manifest);
+module.exports = (addonManager) => {
+  new VirtualThingsAdapter(addonManager);
 };

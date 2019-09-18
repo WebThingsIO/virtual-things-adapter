@@ -1,0 +1,144 @@
+{
+  "author": "Mozilla IoT",
+  "description": "Mozilla WebThings Gateway Virtual Things Adapter",
+  "gateway_specific_settings": {
+    "webthings": {
+      "exec": "{nodeLoader} {path}",
+      "primary_type": "adapter",
+      "strict_max_version": "*",
+      "strict_min_version": "0.10.0"
+    }
+  },
+  "homepage_url": "https://github.com/mozilla-iot/virtual-things-adapter",
+  "id": "virtual-things-adapter",
+  "license": "MPL-2.0",
+  "manifest_version": 1,
+  "name": "Virtual Things",
+  "options": {
+    "default": {
+      "persistPropertyValues": false,
+      "randomizePropertyValues": false
+    },
+    "schema": {
+      "type": "object",
+      "required": [
+        "persistPropertyValues",
+        "randomizePropertyValues"
+      ],
+      "properties": {
+        "persistPropertyValues": {
+          "description": "Whether or not to persist property values across restarts",
+          "type": "boolean"
+        },
+        "randomizePropertyValues": {
+          "description": "Whether or not to periodically generate new property values",
+          "type": "boolean"
+        },
+        "customThings": {
+          "description": "Custom virtual things to create",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "properties"
+            ],
+            "properties": {
+              "name": {
+                "description": "Human-readable thing name, e.g. \"My Thing\".",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description of this thing.",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique ID of this thing. This will be generated for you.",
+                "readOnly": true,
+                "type": "string"
+              },
+              "@context": {
+                "default": "https://iot.mozilla.org/schemas/",
+                "description": "Schema context for the following @types.",
+                "type": "string"
+              },
+              "@type": {
+                "description": "Pre-defined schema types of this thing. See: https://iot.mozilla.org/schemas",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "properties": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "title",
+                    "type"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable property name, e.g. \"prop1\".",
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "Human-readable property name, e.g. \"My Property 1\".",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description of this property.",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "description": "Pre-defined schema type of this property. See: https://iot.mozilla.org/schemas",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Data type of this property",
+                      "enum": [
+                        "string",
+                        "integer",
+                        "number",
+                        "boolean",
+                        "null"
+                      ],
+                      "type": "string"
+                    },
+                    "unit": {
+                      "description": "Unit of this property. Only relevant for numeric properties.",
+                      "type": "string"
+                    },
+                    "minimum": {
+                      "description": "Minimum value of this property. Only relevant for numeric properties.",
+                      "type": "number"
+                    },
+                    "maximum": {
+                      "description": "Maximum value of this property. Only relevant for numeric properties.",
+                      "type": "number"
+                    },
+                    "multipleOf": {
+                      "description": "Property values must be a multiple of this number. Only relevant for numeric properties.",
+                      "type": "number"
+                    },
+                    "readOnly": {
+                      "description": "Whether or not this property is read-only.",
+                      "type": "boolean"
+                    },
+                    "default": {
+                      "description": "Default value of this property. Use true/false for booleans.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "short_name": "Virtual",
+  "version": "0.5.0"
+}

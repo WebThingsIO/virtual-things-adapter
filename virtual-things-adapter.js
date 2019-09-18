@@ -19,9 +19,12 @@ const {
   Event,
   Property,
 } = require('gateway-addon');
+const manifest = require('./manifest.json');
 const mkdirp = require('mkdirp');
 const os = require('os');
 const path = require('path');
+const rimraf = require('rimraf');
+const storage = require('node-persist');
 const uuid = require('uuid/v4');
 
 const DEBUG = false;
@@ -47,6 +50,17 @@ function getMediaPath() {
   }
 
   return path.join(profileDir, 'media', 'virtual-things');
+}
+
+function getDataPath() {
+  let profileDir;
+  if (process.env.hasOwnProperty('MOZIOT_HOME')) {
+    profileDir = process.env.MOZIOT_HOME;
+  } else {
+    profileDir = path.join(os.homedir(), '.mozilla-iot');
+  }
+
+  return path.join(profileDir, 'data', 'virtual-things-adapter');
 }
 
 function randomNumber(integer, min, max) {
@@ -826,7 +840,7 @@ class VirtualThingsProperty extends Property {
     super(device, name, descr);
     this.setCachedValue(value);
 
-    if (device.adapter.randomizePropertyValues) {
+    if (device.adapter.config.randomizePropertyValues) {
       this.interval = setInterval(() => {
         let value;
 
@@ -882,6 +896,26 @@ class VirtualThingsProperty extends Property {
       }
     });
   }
+
+  /**
+   * Set the current value.
+   */
+  setCachedValue(value) {
+    if (this.type === 'boolean') {
+      this.value = !!value;
+    } else {
+      this.value = value;
+    }
+
+    if (this.device.adapter.config.persistPropertyValues) {
+      const key = `${this.device.id}-${this.name}`;
+      storage.setItem(key, this.value).catch((e) => {
+        console.error('Failed to persist property value:', e);
+      });
+    }
+
+    return this.value;
+  }
 }
 
 /**
@@ -912,10 +946,27 @@ class VirtualThingsDevice extends Device {
 
     this.credentialsRequired = !!template.credentialsRequired;
 
+    const promises = [];
     for (const prop of template.properties) {
-      this.properties.set(
-        prop.name,
-        new VirtualThingsProperty(this, prop.name, prop.metadata, prop.value));
+      let promise;
+      if (this.adapter.config.persistPropertyValues) {
+        const key = `${this.id}-${prop.name}`;
+        promise = storage.getItem(key).then((v) => {
+          if (typeof v === 'undefined' || v === null) {
+            return prop.value;
+          }
+
+          return v;
+        });
+      } else {
+        promise = Promise.resolve(prop.value);
+      }
+
+      promises.push(promise.then((v) => {
+        this.properties.set(
+          prop.name,
+          new VirtualThingsProperty(this, prop.name, prop.metadata, v));
+      }));
     }
 
     for (const action of template.actions) {
@@ -926,7 +977,7 @@ class VirtualThingsDevice extends Device {
       this.addEvent(event.name, event.metadata);
     }
 
-    this.adapter.handleDeviceAdded(this);
+    Promise.all(promises).then(() => this.adapter.handleDeviceAdded(this));
   }
 
   performAction(action) {
@@ -968,27 +1019,49 @@ class VirtualThingsDevice extends Device {
  * Instantiates one virtual device per template
  */
 class VirtualThingsAdapter extends Adapter {
-  constructor(adapterManager, manifest) {
-    super(adapterManager, 'virtual-things', manifest.name);
+  constructor(adapterManager) {
+    super(adapterManager, 'virtual-things', manifest.id);
 
     adapterManager.addAdapter(this);
 
-    this.randomizePropertyValues =
-      manifest.moziot.config.randomizePropertyValues;
-    this.addAllThings();
-
-    this.mediaDir = getMediaPath();
-    if (!fs.existsSync(this.mediaDir)) {
-      mkdirp.sync(this.mediaDir, {mode: 0o755});
+    // clean up old data files
+    const mediaDir = getMediaPath();
+    if (fs.existsSync(mediaDir)) {
+      rimraf(mediaDir, (e) => {
+        if (e) {
+          console.error('Failed to remove old media directory:', e);
+        }
+      });
     }
 
-    this.unloading = false;
-    this.copyImage();
-    this.startTranscode();
+    this.dataDir = getDataPath();
+    if (!fs.existsSync(this.dataDir)) {
+      mkdirp.sync(this.dataDir, {mode: 0o755});
+    }
+
+    this.db = new Database(this.packageName);
+    this.db.open().then(() => {
+      return this.db.loadConfig();
+    }).then((config) => {
+      this.config = config;
+
+      if (this.config.persistPropertyValues) {
+        return storage.init({
+          dir: path.join(this.dataDir, 'persist'),
+        });
+      }
+
+      return Promise.resolve();
+    }).then(() => {
+      this.addAllThings();
+      this.unloading = false;
+      this.copyImage();
+      this.startTranscode();
+    }).catch(console.error);
   }
 
   copyImage() {
-    const imagePath = path.join(this.mediaDir, 'image.png');
+    const imagePath = path.join(this.dataDir, 'image.png');
 
     if (!fs.existsSync(imagePath)) {
       const localImagePath = path.join(__dirname, 'static', 'image.png');
@@ -1005,7 +1078,7 @@ class VirtualThingsAdapter extends Adapter {
       return;
     }
 
-    const videoPath = path.join(this.mediaDir, 'index.mpd');
+    const videoPath = path.join(this.dataDir, 'index.mpd');
     const localVideoPath = path.join(__dirname, 'static', 'video.mp4');
 
     const args = [
@@ -1076,123 +1149,116 @@ class VirtualThingsAdapter extends Adapter {
       }
     }
 
-    const db = new Database(this.packageName);
-    db.open().then(() => {
-      return db.loadConfig();
-    }).then((config) => {
-      if (config.customThings) {
-        for (const descr of config.customThings) {
-          if (!descr.id) {
-            descr.id = uuid();
-          }
-
-          const id = `virtual-things-custom-${descr.id}`;
-          if (this.devices[id]) {
-            continue;
-          }
-
-          for (const property of descr.properties) {
-            // Clean up properties
-            if (!['number', 'integer'].includes(property.type)) {
-              delete property.unit;
-              delete property.minimum;
-              delete property.maximum;
-            } else {
-              if (!property.unit) {
-                delete property.unit;
-              }
-
-              if (property.minimum === property.maximum) {
-                delete property.minimum;
-                delete property.maximum;
-              }
-            }
-
-            switch (property.type) {
-              case 'integer':
-              case 'number':
-                property.default = Number(property.default);
-                break;
-              case 'boolean':
-                if (property.default === 'true') {
-                  property.default = true;
-                } else if (property.default === 'false') {
-                  property.default = false;
-                } else {
-                  property.default = !!property.default;
-                }
-                break;
-              case 'null':
-                property.default = null;
-                break;
-              case 'string':
-                // just in case
-                property.default = `${property.default}`;
-                break;
-            }
-          }
-
-          const newDescr = {
-            type: 'thing',
-            '@context': descr['@context'] || 'https://iot.mozilla.org/schemas',
-            '@type': descr['@type'] || [],
-            name: descr.name,
-            properties: [],
-            actions: [],
-            events: [],
-          };
-
-          for (const property of descr.properties) {
-            const prop = {
-              name: property.name,
-              value: property.default,
-              metadata: {
-                title: property.title,
-                type: property.type,
-              },
-            };
-
-            if (property.description) {
-              prop.metadata.description = property.description;
-            }
-
-            if (property['@type']) {
-              prop.metadata['@type'] = property['@type'];
-            }
-
-            if (property.unit) {
-              prop.metadata.unit = property.unit;
-            }
-
-            if (property.hasOwnProperty('minimum')) {
-              prop.metadata.minimum = property.minimum;
-            }
-
-            if (property.hasOwnProperty('maximum')) {
-              prop.metadata.maximum = property.maximum;
-            }
-
-            if (property.hasOwnProperty('multipleOf')) {
-              prop.metadata.multipleOf = property.multipleOf;
-            }
-
-            if (property.hasOwnProperty('readOnly')) {
-              prop.metadata.readOnly = property.readOnly;
-            }
-
-            newDescr.properties.push(prop);
-          }
-
-          new VirtualThingsDevice(this, id, newDescr);
+    if (this.config.customThings) {
+      for (const descr of this.config.customThings) {
+        if (!descr.id) {
+          descr.id = uuid();
         }
 
-        return db.saveConfig(config);
+        const id = `virtual-things-custom-${descr.id}`;
+        if (this.devices[id]) {
+          continue;
+        }
+
+        for (const property of descr.properties) {
+          // Clean up properties
+          if (!['number', 'integer'].includes(property.type)) {
+            delete property.unit;
+            delete property.minimum;
+            delete property.maximum;
+          } else {
+            if (!property.unit) {
+              delete property.unit;
+            }
+
+            if (property.minimum === property.maximum) {
+              delete property.minimum;
+              delete property.maximum;
+            }
+          }
+
+          switch (property.type) {
+            case 'integer':
+            case 'number':
+              property.default = Number(property.default);
+              break;
+            case 'boolean':
+              if (property.default === 'true') {
+                property.default = true;
+              } else if (property.default === 'false') {
+                property.default = false;
+              } else {
+                property.default = !!property.default;
+              }
+              break;
+            case 'null':
+              property.default = null;
+              break;
+            case 'string':
+              // just in case
+              property.default = `${property.default}`;
+              break;
+          }
+        }
+
+        const newDescr = {
+          type: 'thing',
+          '@context': descr['@context'] || 'https://iot.mozilla.org/schemas',
+          '@type': descr['@type'] || [],
+          name: descr.name,
+          properties: [],
+          actions: [],
+          events: [],
+        };
+
+        for (const property of descr.properties) {
+          const prop = {
+            name: property.name,
+            value: property.default,
+            metadata: {
+              title: property.title,
+              type: property.type,
+            },
+          };
+
+          if (property.description) {
+            prop.metadata.description = property.description;
+          }
+
+          if (property['@type']) {
+            prop.metadata['@type'] = property['@type'];
+          }
+
+          if (property.unit) {
+            prop.metadata.unit = property.unit;
+          }
+
+          if (property.hasOwnProperty('minimum')) {
+            prop.metadata.minimum = property.minimum;
+          }
+
+          if (property.hasOwnProperty('maximum')) {
+            prop.metadata.maximum = property.maximum;
+          }
+
+          if (property.hasOwnProperty('multipleOf')) {
+            prop.metadata.multipleOf = property.multipleOf;
+          }
+
+          if (property.hasOwnProperty('readOnly')) {
+            prop.metadata.readOnly = property.readOnly;
+          }
+
+          newDescr.properties.push(prop);
+        }
+
+        new VirtualThingsDevice(this, id, newDescr);
       }
-    }).catch((e) => {
-      console.error('Database error:', e);
-    }).then(() => {
-      db.close();
-    });
+
+      return this.db.saveConfig(this.config);
+    }
+
+    return Promise.resolve();
   }
 
   setPin(deviceId, pin) {
@@ -1219,7 +1285,7 @@ class VirtualThingsAdapter extends Adapter {
   }
 
   unload() {
-    if (this.randomizePropertyValues) {
+    if (this.config.randomizePropertyValues) {
       for (const device of Object.values(this.devices)) {
         for (const property of device.properties.values()) {
           clearInterval(property.interval);

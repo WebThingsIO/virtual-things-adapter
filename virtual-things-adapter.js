@@ -686,23 +686,16 @@ const videoCamera = {
         ],
       },
     },
-  ],
-  actions: [
     {
-      name: 'startStream',
+      name: 'streamActive',
+      value: false,
       metadata: {
-        title: 'Start Stream',
-        description: 'Start the video stream',
-      },
-    },
-    {
-      name: 'stopStream',
-      metadata: {
-        title: 'Stop Stream',
-        description: 'Stop the video stream',
+        type: 'boolean',
+        title: 'Streaming',
       },
     },
   ],
+  actions: [],
   events: [],
 };
 
@@ -905,6 +898,15 @@ class VirtualThingsProperty extends Property {
         reject('Read-only property');
       } else {
         this.setCachedValue(value);
+
+        if (this.name === 'streamActive') {
+          if (this.value) {
+            this.device.adapter.startTranscode();
+          } else {
+            this.device.adapter.stopTranscode();
+          }
+        }
+
         resolve(this.value);
         this.device.notifyPropertyChanged(this);
       }
@@ -1018,14 +1020,6 @@ class VirtualThingsDevice extends Device {
         const prop = this.properties.get('alarm');
         prop.setCachedValue(false);
         this.notifyPropertyChanged(prop);
-        break;
-      }
-      case 'startStream': {
-        this.adapter.startTranscode();
-        break;
-      }
-      case 'stopStream': {
-        this.adapter.stopTranscode();
         break;
       }
     }

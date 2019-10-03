@@ -1035,10 +1035,10 @@ class VirtualThingsDevice extends Device {
  * Instantiates one virtual device per template
  */
 class VirtualThingsAdapter extends Adapter {
-  constructor(adapterManager) {
-    super(adapterManager, 'virtual-things', manifest.id);
+  constructor(addonManager) {
+    super(addonManager, 'virtual-things', manifest.id);
 
-    adapterManager.addAdapter(this);
+    addonManager.addAdapter(this);
 
     this.mediaDir = getMediaPath();
     if (!fs.existsSync(this.mediaDir)) {

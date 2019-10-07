@@ -804,6 +804,74 @@ const colorControl = {
   events: [],
 };
 
+const thermostat = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['Thermostat', 'TemperatureSensor'],
+  name: 'Virtual Thermostat',
+  properties: [
+    {
+      name: 'temperature',
+      value: 20,
+      metadata: {
+        title: 'Temperature',
+        type: 'number',
+        '@type': 'TemperatureProperty',
+        unit: 'degree celsius',
+        minimum: 0,
+        maximum: 100,
+        readOnly: true,
+      },
+    },
+    {
+      name: 'heatingTargetTemperature',
+      value: 19,
+      metadata: {
+        title: 'Heating Target',
+        type: 'number',
+        '@type': 'TargetTemperatureProperty',
+        unit: 'degree celsius',
+        minimum: 10,
+        maximum: 38,
+      },
+    },
+    {
+      name: 'coolingTargetTemperature',
+      value: 25,
+      metadata: {
+        title: 'Cooling Target',
+        type: 'number',
+        '@type': 'TargetTemperatureProperty',
+        unit: 'degree celsius',
+        minimum: 10,
+        maximum: 38,
+      },
+    },
+    {
+      name: 'heatingCooling',
+      value: 'heating',
+      metadata: {
+        title: 'Heating/Cooling',
+        type: 'string',
+        '@type': 'HeatingCoolingProperty',
+        enum: ['off', 'heating', 'cooling'],
+        readOnly: true,
+      },
+    },
+    {
+      name: 'thermostatMode',
+      value: 'heat',
+      metadata: {
+        title: 'Mode',
+        type: 'string',
+        '@type': 'ThermostatModeProperty',
+        enum: ['off', 'heat', 'cool', 'auto'],
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -837,6 +905,7 @@ const VIRTUAL_THINGS = [
   alarm,
   energyMonitor,
   colorControl,
+  thermostat,
 ];
 
 /**
@@ -904,6 +973,16 @@ class VirtualThingsProperty extends Property {
             this.device.adapter.startTranscode();
           } else {
             this.device.adapter.stopTranscode();
+          }
+        } else if (this.name == 'thermostatMode') {
+          const heatingCooling = this.device.properties.get('heatingCooling');
+
+          if (this.value === 'heat') {
+            heatingCooling.setCachedValueAndNotify('heating');
+          } else if (this.value === 'cool') {
+            heatingCooling.setCachedValueAndNotify('cooling');
+          } else if (this.value === 'off') {
+            heatingCooling.setCachedValueAndNotify('off');
           }
         }
 

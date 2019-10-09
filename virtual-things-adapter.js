@@ -872,6 +872,37 @@ const thermostat = {
   events: [],
 };
 
+const lock = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['Lock'],
+  name: 'Virtual Lock',
+  properties: [
+    {
+      name: 'locked',
+      value: 'unlocked',
+      metadata: {
+        title: 'Current State',
+        type: 'string',
+        '@type': 'LockedProperty',
+        enum: ['locked', 'unlocked', 'jammed', 'unknown'],
+        readOnly: true,
+      },
+    },
+    {
+      name: 'targetLocked',
+      value: 'unlocked',
+      metadata: {
+        title: 'Target State',
+        type: 'string',
+        '@type': 'TargetLockedProperty',
+        enum: ['locked', 'unlocked'],
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -906,6 +937,7 @@ const VIRTUAL_THINGS = [
   energyMonitor,
   colorControl,
   thermostat,
+  lock,
 ];
 
 /**
@@ -974,7 +1006,7 @@ class VirtualThingsProperty extends Property {
           } else {
             this.device.adapter.stopTranscode();
           }
-        } else if (this.name == 'thermostatMode') {
+        } else if (this.name === 'thermostatMode') {
           const heatingCooling = this.device.properties.get('heatingCooling');
 
           if (this.value === 'heat') {
@@ -984,6 +1016,9 @@ class VirtualThingsProperty extends Property {
           } else if (this.value === 'off') {
             heatingCooling.setCachedValueAndNotify('off');
           }
+        } else if (this.name === 'targetLocked') {
+          const locked = this.device.properties.get('locked');
+          locked.setCachedValueAndNotify(this.value);
         }
 
         resolve(this.value);

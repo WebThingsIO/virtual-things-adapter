@@ -888,18 +888,25 @@ const lock = {
         readOnly: true,
       },
     },
+  ],
+  actions: [
     {
-      name: 'targetLocked',
-      value: 'unlocked',
+      name: 'lock',
       metadata: {
-        title: 'Target State',
-        type: 'string',
-        '@type': 'TargetLockedProperty',
-        enum: ['locked', 'unlocked'],
+        '@type': 'LockAction',
+        title: 'Lock',
+        description: 'Lock the locking mechanism',
+      },
+    },
+    {
+      name: 'unlock',
+      metadata: {
+        '@type': 'UnlockAction',
+        title: 'Unlock',
+        description: 'Unlock the locking mechanism',
       },
     },
   ],
-  actions: [],
   events: [],
 };
 
@@ -1016,9 +1023,6 @@ class VirtualThingsProperty extends Property {
           } else if (this.value === 'off') {
             heatingCooling.setCachedValueAndNotify('off');
           }
-        } else if (this.name === 'targetLocked') {
-          const locked = this.device.properties.get('locked');
-          locked.setCachedValueAndNotify(this.value);
         }
 
         resolve(this.value);
@@ -1135,6 +1139,31 @@ class VirtualThingsDevice extends Device {
         prop.setCachedValue(false);
         this.notifyPropertyChanged(prop);
         break;
+      }
+      case 'lock':
+      case 'unlock': {
+        const targetState = action.name === 'lock' ? 'locked' : 'unlocked';
+
+        const prop = this.properties.get('locked');
+        if (prop.value === targetState) {
+          action.finish();
+          return Promise.resolve();
+        }
+
+        prop.setCachedValueAndNotify('unknown');
+        setTimeout(() => {
+          // jam the lock 5% of the time.
+          if (randomNumber(true, 0, 19) === 2) {
+            prop.setCachedValueAndNotify('jammed');
+          } else {
+            prop.setCachedValueAndNotify(targetState);
+          }
+
+          this.notifyPropertyChanged(prop);
+          action.finish();
+        }, 2000);
+
+        return Promise.resolve();
       }
     }
 

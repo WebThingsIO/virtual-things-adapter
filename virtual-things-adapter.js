@@ -1296,6 +1296,7 @@ class VirtualThingsAdapter extends Adapter {
             delete property.unit;
             delete property.minimum;
             delete property.maximum;
+            delete property.multipleOf;
           } else {
             if (!property.unit) {
               delete property.unit;
@@ -1304,6 +1305,11 @@ class VirtualThingsAdapter extends Adapter {
             if (property.minimum === property.maximum) {
               delete property.minimum;
               delete property.maximum;
+            }
+
+            // default in the UI
+            if (property.multipleOf === 0) {
+              delete property.multipleOf;
             }
           }
 

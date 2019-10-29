@@ -711,6 +711,7 @@ const alarm = {
         title: 'Alarm',
         type: 'boolean',
         '@type': 'AlarmProperty',
+        readOnly: true,
       },
     },
   ],

@@ -107,7 +107,7 @@ function on() {
   };
 }
 
-function color() {
+function color(readOnly = false) {
   return {
     name: 'color',
     value: '#ffffff',
@@ -115,6 +115,7 @@ function color() {
       title: 'Color',
       type: 'string',
       '@type': 'ColorProperty',
+      readOnly,
     },
   };
 }
@@ -911,6 +912,17 @@ const lock = {
   events: [],
 };
 
+const colorSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['ColorSensor'],
+  name: 'Virtual Color Sensor',
+  properties: [
+    color(true),
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -946,6 +958,7 @@ const VIRTUAL_THINGS = [
   colorControl,
   thermostat,
   lock,
+  colorSensor,
 ];
 
 /**

@@ -834,6 +834,7 @@ const thermostat = {
         unit: 'degree celsius',
         minimum: 10,
         maximum: 38,
+        multipleOf: 0.1,
       },
     },
     {
@@ -846,6 +847,7 @@ const thermostat = {
         unit: 'degree celsius',
         minimum: 10,
         maximum: 38,
+        multipleOf: 0.1,
       },
     },
     {
@@ -973,33 +975,41 @@ class VirtualThingsProperty extends Property {
       this.interval = setInterval(() => {
         let value;
 
-        switch (descr.type) {
-          case 'boolean':
-            value = Math.random() >= 0.5;
-            break;
-          case 'string': {
-            if (descr['@type'] === 'ColorProperty') {
-              const randomComponent = () => {
-                return randomNumber(true, 0, 255).toString(16).padStart(2, '0');
-              };
-              value =
-                `#${randomComponent()}${randomComponent()}${randomComponent()}`;
-            } else {
-              value = crypto.randomBytes(20).toString('hex');
-            }
+        if (descr.enum && descr.enum.length > 0) {
+          value = descr.enum[randomNumber(true, 0, descr.enum.length - 1)];
+        } else {
+          switch (descr.type) {
+            case 'boolean':
+              value = Math.random() >= 0.5;
+              break;
+            case 'string': {
+              if (descr['@type'] === 'ColorProperty') {
+                const randomComponent = () => {
+                  return randomNumber(true, 0, 255)
+                    .toString(16)
+                    .padStart(2, '0');
+                };
+                value = `#${
+                  randomComponent()}${
+                  randomComponent()}${
+                  randomComponent()}`;
+              } else {
+                value = crypto.randomBytes(20).toString('hex');
+              }
 
-            break;
+              break;
+            }
+            case 'number':
+            case 'integer':
+              value = randomNumber(
+                descr.type === 'integer',
+                descr.minimum,
+                descr.maximum
+              );
+              break;
+            default:
+              return;
           }
-          case 'number':
-          case 'integer':
-            value = randomNumber(
-              descr.type === 'integer',
-              descr.minimum,
-              descr.maximum
-            );
-            break;
-          default:
-            return;
         }
 
         if (value !== this.value) {

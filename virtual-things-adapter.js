@@ -135,6 +135,23 @@ function colorTemperature() {
   };
 }
 
+function colorMode() {
+  return {
+    name: 'colorMode',
+    value: 'color',
+    metadata: {
+      title: 'Color Mode',
+      type: 'string',
+      '@type': 'ColorModeProperty',
+      enum: [
+        'color',
+        'temperature',
+      ],
+      readOnly: true,
+    },
+  };
+}
+
 function brightness() {
   return {
     name: 'level',
@@ -199,6 +216,8 @@ const dimmableColorLight = {
   name: 'Virtual Dimmable Color Light',
   properties: [
     color(),
+    colorTemperature(),
+    colorMode(),
     brightness(),
     on(),
   ],
@@ -1031,22 +1050,40 @@ class VirtualThingsProperty extends Property {
       } else {
         this.setCachedValue(value);
 
-        if (this.name === 'streamActive') {
-          if (this.value) {
-            this.device.adapter.startTranscode();
-          } else {
-            this.device.adapter.stopTranscode();
-          }
-        } else if (this.name === 'thermostatMode') {
-          const heatingCooling = this.device.properties.get('heatingCooling');
+        const colorModeProperty = this.device.findProperty('colorMode');
 
-          if (this.value === 'heat') {
-            heatingCooling.setCachedValueAndNotify('heating');
-          } else if (this.value === 'cool') {
-            heatingCooling.setCachedValueAndNotify('cooling');
-          } else if (this.value === 'off') {
-            heatingCooling.setCachedValueAndNotify('off');
+        switch (this.name) {
+          case 'streamActive':
+            if (this.value) {
+              this.device.adapter.startTranscode();
+            } else {
+              this.device.adapter.stopTranscode();
+            }
+
+            break;
+          case 'thermostatMode': {
+            const heatingCooling = this.device.properties.get('heatingCooling');
+
+            if (this.value === 'heat') {
+              heatingCooling.setCachedValueAndNotify('heating');
+            } else if (this.value === 'cool') {
+              heatingCooling.setCachedValueAndNotify('cooling');
+            } else if (this.value === 'off') {
+              heatingCooling.setCachedValueAndNotify('off');
+            }
+
+            break;
           }
+          case 'color':
+            if (colorModeProperty) {
+              colorModeProperty.setCachedValueAndNotify('color');
+            }
+            break;
+          case 'colorTemperature':
+            if (colorModeProperty) {
+              colorModeProperty.setCachedValueAndNotify('temperature');
+            }
+            break;
         }
 
         resolve(this.value);

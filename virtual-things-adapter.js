@@ -24,7 +24,7 @@ const mkdirp = require('mkdirp');
 const os = require('os');
 const path = require('path');
 const storage = require('node-persist');
-const uuid = require('uuid/v4');
+const {v4: uuidv4} = require('uuid');
 
 const DEBUG = false;
 
@@ -1372,7 +1372,7 @@ class VirtualThingsAdapter extends Adapter {
     if (this.config.customThings) {
       for (const descr of this.config.customThings) {
         if (!descr.id) {
-          descr.id = uuid();
+          descr.id = uuidv4();
         }
 
         const id = `virtual-things-custom-${descr.id}`;

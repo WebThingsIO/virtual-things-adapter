@@ -944,6 +944,29 @@ const colorSensor = {
   events: [],
 };
 
+const humiditySensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['HumiditySensor'],
+  name: 'Virtual Humidity Sensor',
+  properties: [
+    {
+      name: 'humidity',
+      value: 20,
+      metadata: {
+        title: 'Humidity',
+        type: 'number',
+        '@type': 'HumidityProperty',
+        unit: 'percent',
+        minimum: 0,
+        maximum: 100,
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -980,6 +1003,7 @@ const VIRTUAL_THINGS = [
   thermostat,
   lock,
   colorSensor,
+  humiditySensor,
 ];
 
 /**

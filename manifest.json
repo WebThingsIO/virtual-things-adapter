@@ -1,6 +1,6 @@
 {
-  "author": "Mozilla IoT",
-  "description": "Mozilla WebThings Gateway Virtual Things Adapter",
+  "author": "WebThingsIO",
+  "description": "WebThings Gateway Virtual Things Adapter",
   "gateway_specific_settings": {
     "webthings": {
       "exec": "{nodeLoader} {path}",
@@ -9,7 +9,7 @@
       "strict_min_version": "0.10.0"
     }
   },
-  "homepage_url": "https://github.com/mozilla-iot/virtual-things-adapter",
+  "homepage_url": "https://github.com/WebThingsIO/virtual-things-adapter",
   "id": "virtual-things-adapter",
   "license": "MPL-2.0",
   "manifest_version": 1,
@@ -140,5 +140,5 @@
     }
   },
   "short_name": "Virtual",
-  "version": "0.9.0"
+  "version": "0.9.1"
 }

@@ -1,29 +1,29 @@
 {
   "name": "virtual-things-adapter",
-  "version": "0.9.0",
-  "description": "Mozilla WebThings Gateway Virtual Things Adapter",
+  "version": "0.9.1",
+  "description": "WebThings Gateway Virtual Things Adapter",
   "main": "index.js",
   "scripts": {
     "lint": "eslint ."
   },
-  "homepage": "https://github.com/mozilla-iot/virtual-things-adapter",
-  "author": "Mozilla IoT",
+  "homepage": "https://github.com/WebThingsIO/virtual-things-adapter",
+  "author": "WebThingsIO",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla-iot/virtual-things-adapter.git"
+    "url": "https://github.com/WebThingsIO/virtual-things-adapter.git"
   },
   "bugs": {
-    "url": "https://github.com/mozilla-iot/virtual-things-adapter/issues"
+    "url": "https://github.com/WebThingsIO/virtual-things-adapter/issues"
   },
   "dependencies": {
     "mkdirp": "^1.0.4",
     "node-persist": "^3.1.0",
-    "uuid": "^8.1.0"
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.5.0"
+    "eslint": "^7.10.0"
   },
   "files": [
     "LICENSE",

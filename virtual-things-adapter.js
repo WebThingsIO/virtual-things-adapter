@@ -40,7 +40,11 @@ if (proc.status === 0) {
   ffmpegMinor = parseInt(version.split('.')[1], 10);
 }
 
-function getMediaPath() {
+function getMediaPath(mediaDir) {
+  if (mediaDir) {
+    return path.join(mediaDir, 'virtual-things');
+  }
+
   let profileDir;
   if (process.env.hasOwnProperty('MOZIOT_HOME')) {
     profileDir = process.env.MOZIOT_HOME;
@@ -51,7 +55,11 @@ function getMediaPath() {
   return path.join(profileDir, 'media', 'virtual-things');
 }
 
-function getDataPath() {
+function getDataPath(dataDir) {
+  if (dataDir) {
+    return path.join(dataDir, 'virtual-things-adapter');
+  }
+
   let profileDir;
   if (process.env.hasOwnProperty('MOZIOT_HOME')) {
     profileDir = process.env.MOZIOT_HOME;
@@ -1268,12 +1276,12 @@ class VirtualThingsAdapter extends Adapter {
 
     addonManager.addAdapter(this);
 
-    this.mediaDir = getMediaPath();
+    this.mediaDir = getMediaPath(this.userProfile.mediaDir);
     if (!fs.existsSync(this.mediaDir)) {
       mkdirp.sync(this.mediaDir, {mode: 0o755});
     }
 
-    this.dataDir = getDataPath();
+    this.dataDir = getDataPath(this.userProfile.dataDir);
     if (!fs.existsSync(this.dataDir)) {
       mkdirp.sync(this.dataDir, {mode: 0o755});
     }

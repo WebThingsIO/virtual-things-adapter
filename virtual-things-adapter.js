@@ -299,6 +299,19 @@ const smartPlug = {
         title: 'Power',
         type: 'number',
         unit: 'watt',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'instantaneousPowerFactor',
+      value: 0,
+      metadata: {
+        '@type': 'InstantaneousPowerFactorProperty',
+        title: 'Power Factor',
+        type: 'number',
+        minimum: -1,
+        maximum: 1,
+        readOnly: true,
       },
     },
     {
@@ -309,6 +322,7 @@ const smartPlug = {
         title: 'Voltage',
         type: 'number',
         unit: 'volt',
+        readOnly: true,
       },
     },
     {
@@ -319,6 +333,7 @@ const smartPlug = {
         title: 'Current',
         type: 'number',
         unit: 'ampere',
+        readOnly: true,
       },
     },
     {
@@ -329,6 +344,7 @@ const smartPlug = {
         title: 'Frequency',
         type: 'number',
         unit: 'hertz',
+        readOnly: true,
       },
     },
   ],
@@ -602,7 +618,7 @@ const actionsEventsThing = {
             },
             integerInput: {
               type: 'integer',
-              unit: 'meters',
+              unit: 'metre',
             },
             stringInput: {
               type: 'string',
@@ -785,6 +801,19 @@ const energyMonitor = {
         title: 'Power',
         type: 'number',
         unit: 'watt',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'instantaneousPowerFactor',
+      value: 0,
+      metadata: {
+        '@type': 'InstantaneousPowerFactorProperty',
+        title: 'Power Factor',
+        type: 'number',
+        minimum: -1,
+        maximum: 1,
+        readOnly: true,
       },
     },
     {
@@ -795,6 +824,7 @@ const energyMonitor = {
         title: 'Voltage',
         type: 'number',
         unit: 'volt',
+        readOnly: true,
       },
     },
     {
@@ -805,6 +835,7 @@ const energyMonitor = {
         title: 'Current',
         type: 'number',
         unit: 'ampere',
+        readOnly: true,
       },
     },
     {
@@ -815,6 +846,7 @@ const energyMonitor = {
         title: 'Frequency',
         type: 'number',
         unit: 'hertz',
+        readOnly: true,
       },
     },
   ],
@@ -975,6 +1007,82 @@ const humiditySensor = {
   events: [],
 };
 
+const airQualitySensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['AirQualitySensor'],
+  name: 'Virtual Air Quality Sensor',
+  properties: [
+    {
+      name: 'concentration',
+      value: 20,
+      metadata: {
+        title: 'Gas Concentration',
+        type: 'number',
+        '@type': 'ConcentrationProperty',
+        unit: 'ppm',
+        minimum: 0,
+        readOnly: true,
+      },
+    },
+    {
+      name: 'density',
+      value: 20,
+      metadata: {
+        title: 'Particulate Density',
+        type: 'number',
+        '@type': 'DensityProperty',
+        unit: 'micrograms per cubic metre',
+        minimum: 0,
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const barometricPressureSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['BarometricPressureSensor'],
+  name: 'Virtual Barometric Pressure Sensor',
+  properties: [
+    {
+      name: 'pressure',
+      value: 20,
+      metadata: {
+        title: 'Pressure',
+        type: 'number',
+        '@type': 'BarometricPressureProperty',
+        unit: 'hectopascal',
+        minimum: 0,
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
+const smokeSensor = {
+  '@context': 'https://iot.mozilla.org/schemas',
+  '@type': ['SmokeSensor'],
+  name: 'Virtual Smoke Sensor',
+  properties: [
+    {
+      name: 'smoke',
+      value: false,
+      metadata: {
+        title: 'smoke',
+        type: 'boolean',
+        '@type': 'SmokeProperty',
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   videoCamera.properties[0].metadata.links.push({
     rel: 'alternate',
@@ -1012,6 +1120,9 @@ const VIRTUAL_THINGS = [
   lock,
   colorSensor,
   humiditySensor,
+  airQualitySensor,
+  barometricPressureSensor,
+  smokeSensor,
 ];
 
 /**

@@ -1279,7 +1279,7 @@ class VirtualThingsDevice extends Device {
       this.pinPattern = template.pin.pattern;
     } else {
       this.pinRequired = false;
-      this.pinPattern = false;
+      this.pinPattern = '';
     }
 
     this.credentialsRequired = !!template.credentialsRequired;

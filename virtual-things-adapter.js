@@ -1072,7 +1072,7 @@ const smokeSensor = {
       name: 'smoke',
       value: false,
       metadata: {
-        title: 'smoke',
+        title: 'Smoke',
         type: 'boolean',
         '@type': 'SmokeProperty',
         readOnly: true,

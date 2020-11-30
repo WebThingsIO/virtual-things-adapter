@@ -1,6 +1,6 @@
 {
   "name": "virtual-things-adapter",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "WebThings Gateway Virtual Things Adapter",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.11.0"
+    "eslint": "^7.14.0"
   },
   "files": [
     "LICENSE",

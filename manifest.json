@@ -122,6 +122,10 @@
                       "description": "Property values must be a multiple of this number. Only relevant for numeric properties.",
                       "type": "number"
                     },
+                    "enum": {
+                      "description": "Property values must be one of these options, given as a JSON Array. Only relevant for string properties.",
+                      "type": "string"
+                    },
                     "readOnly": {
                       "description": "Whether or not this property is read-only.",
                       "type": "boolean"

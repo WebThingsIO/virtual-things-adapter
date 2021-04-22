@@ -1545,13 +1545,14 @@ class VirtualThingsAdapter extends Adapter {
               delete property.multipleOf;
             }
           }
-          
+
           if (property.type !== 'string') {
             delete property.enum;
           } else {
             try {
               property.enum = JSON.parse(property.enum);
-            } catch (ex) {}
+            } catch (ex) { // eslint-disable-line no-empty
+            }
           }
 
           switch (property.type) {

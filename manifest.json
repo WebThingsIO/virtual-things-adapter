@@ -40,8 +40,7 @@
           "items": {
             "type": "object",
             "required": [
-              "name",
-              "properties"
+              "name"
             ],
             "properties": {
               "name": {
@@ -129,6 +128,38 @@
                     "default": {
                       "description": "Default value of this property. Use true/false for booleans.",
                       "type": "string"
+                    }
+                  }
+                }
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "title"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable action name, e.g. \"action1\".",
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "Human-readable action name, e.g. \"My Action 1\".",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description of this action.",
+                      "type": "string"
+                    },
+                    "input": {
+                      "description": "Optional JSON describing the inputs of this action (No inputs if empty)",
+                      "type": "string"
+                    },
+                    "emitEvent": {
+                      "description": "Emit an event whenever this action gets executed",
+                      "type": "boolean"
                     }
                   }
                 }

@@ -1323,6 +1323,16 @@ class VirtualThingsDevice extends Device {
 
     action.start();
 
+    if (this.id.startsWith('virtual-things-custom-')){
+      if (this.events.has(action.name)) {
+        this.eventNotify(new Event(this,
+          action.name,
+          action.input));
+      }
+      action.finish();
+      return Promise.resolve();
+    }
+
     switch (action.name) {
       case 'basic':
         this.eventNotify(new Event(this,
@@ -1523,6 +1533,7 @@ class VirtualThingsAdapter extends Adapter {
           continue;
         }
 
+        descr.properties = descr.properties || [];
         for (const property of descr.properties) {
           // Clean up properties
           if (!['number', 'integer'].includes(property.type)) {
@@ -1567,6 +1578,17 @@ class VirtualThingsAdapter extends Adapter {
               // just in case
               property.default = `${property.default}`;
               break;
+          }
+        }
+
+        const actions = (descr.actions || []).map((action) => {
+          return Object.assign({}, action);
+        });
+        for (const action of actions) {
+          try {
+            action.input = JSON.parse(action.input);
+          } catch (ex) {
+            delete action.input;
           }
         }
 
@@ -1619,6 +1641,38 @@ class VirtualThingsAdapter extends Adapter {
           }
 
           newDescr.properties.push(prop);
+        }
+        
+        for (const action of actions) {
+          const act = {
+            name: action.name,
+            metadata: {
+              title: action.title,
+            },
+          };
+
+          if (action.description) {
+            act.metadata.description = action.description;
+          }
+
+          if (action.input) {
+            act.metadata.input = action.input;
+          }
+
+          if (action.emitEvent) {
+            const event = {
+              name: action.name,
+              metadata: {
+                title: action.title,
+              },
+            };
+            if (action.input) {
+              event.type = action.input.type;
+            }
+            newDescr.events.push(event);
+          }
+
+          newDescr.actions.push(act);
         }
 
         new VirtualThingsDevice(this, id, newDescr);

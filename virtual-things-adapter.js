@@ -1323,11 +1323,11 @@ class VirtualThingsDevice extends Device {
 
     action.start();
 
-    if (this.id.startsWith('virtual-things-custom-')){
+    if (this.id.startsWith('virtual-things-custom-')) {
       if (this.events.has(action.name)) {
         this.eventNotify(new Event(this,
-          action.name,
-          action.input));
+                                   action.name,
+                                   action.input));
       }
       action.finish();
       return Promise.resolve();
@@ -1642,7 +1642,7 @@ class VirtualThingsAdapter extends Adapter {
 
           newDescr.properties.push(prop);
         }
-        
+
         for (const action of actions) {
           const act = {
             name: action.name,

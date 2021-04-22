@@ -1505,10 +1505,12 @@ class VirtualThingsAdapter extends Adapter {
   }
 
   addAllThings() {
-    for (let i = 0; i < VIRTUAL_THINGS.length; i++) {
-      const id = `virtual-things-${i}`;
-      if (!this.devices[id]) {
-        new VirtualThingsDevice(this, id, VIRTUAL_THINGS[i]);
+    if (!this.config.excludeDefaultThings) {
+      for (let i = 0; i < VIRTUAL_THINGS.length; i++) {
+        const id = `virtual-things-${i}`;
+        if (!this.devices[id]) {
+          new VirtualThingsDevice(this, id, VIRTUAL_THINGS[i]);
+        }
       }
     }
 

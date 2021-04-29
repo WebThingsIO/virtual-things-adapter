@@ -124,7 +124,10 @@
                     },
                     "enum": {
                       "description": "Property values must be one of these options, given as a JSON Array. Only relevant for string properties.",
-                      "type": "string"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "readOnly": {
                       "description": "Whether or not this property is read-only.",

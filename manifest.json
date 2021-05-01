@@ -123,7 +123,7 @@
                       "type": "number"
                     },
                     "enum": {
-                      "description": "Property values must be one of these options, given as a JSON Array. Only relevant for string properties.",
+                      "description": "Property values must be one of these options. Only relevant for string properties.",
                       "type": "array",
                       "items": {
                         "type": "string"

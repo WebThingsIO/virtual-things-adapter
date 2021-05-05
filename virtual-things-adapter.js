@@ -1525,7 +1525,10 @@ class VirtualThingsAdapter extends Adapter {
           continue;
         }
 
-        for (const property of descr.properties) {
+        const properties = descr.properties.map((property) => {
+          return Object.assign({}, property);
+        });
+        for (const property of properties) {
           // Clean up properties
           if (!['number', 'integer'].includes(property.type)) {
             delete property.unit;
@@ -1567,7 +1570,7 @@ class VirtualThingsAdapter extends Adapter {
               break;
             case 'string':
               // just in case
-              property.default = `${property.default}`;
+              property.default = `${property.default || ''}`;
               break;
           }
         }
@@ -1582,7 +1585,7 @@ class VirtualThingsAdapter extends Adapter {
           events: [],
         };
 
-        for (const property of descr.properties) {
+        for (const property of properties) {
           const prop = {
             name: property.name,
             value: property.default,

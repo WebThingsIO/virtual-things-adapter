@@ -1551,6 +1551,14 @@ class VirtualThingsAdapter extends Adapter {
             }
           }
 
+          if (
+            property.type !== 'string' ||
+            !Array.isArray(property.enum) ||
+            !property.enum.length
+          ) {
+            delete property.enum;
+          }
+
           switch (property.type) {
             case 'integer':
             case 'number':
@@ -1617,6 +1625,10 @@ class VirtualThingsAdapter extends Adapter {
 
           if (property.hasOwnProperty('multipleOf')) {
             prop.metadata.multipleOf = property.multipleOf;
+          }
+
+          if (property.hasOwnProperty('enum')) {
+            prop.metadata.enum = property.enum;
           }
 
           if (property.hasOwnProperty('readOnly')) {

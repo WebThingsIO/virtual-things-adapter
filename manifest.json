@@ -17,13 +17,15 @@
   "options": {
     "default": {
       "persistPropertyValues": false,
-      "randomizePropertyValues": false
+      "randomizePropertyValues": false,
+      "excludeDefaultThings": false
     },
     "schema": {
       "type": "object",
       "required": [
         "persistPropertyValues",
-        "randomizePropertyValues"
+        "randomizePropertyValues",
+        "excludeDefaultThings"
       ],
       "properties": {
         "persistPropertyValues": {
@@ -32,6 +34,10 @@
         },
         "randomizePropertyValues": {
           "description": "Whether or not to periodically generate new property values",
+          "type": "boolean"
+        },
+        "excludeDefaultThings": {
+          "description": "Whether or not to exclude the default virtual things",
           "type": "boolean"
         },
         "customThings": {

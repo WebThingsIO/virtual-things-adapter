@@ -1546,7 +1546,11 @@ class VirtualThingsAdapter extends Adapter {
             }
           }
 
-          if (property.type !== 'string' || !Array.isArray(property.enum) || !property.enum.length) {
+          if (
+            property.type !== 'string' ||
+            !Array.isArray(property.enum) ||
+            !property.enum.length
+          ) {
             delete property.enum;
           }
 

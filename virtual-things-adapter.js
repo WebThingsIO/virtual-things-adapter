@@ -702,9 +702,8 @@ const camera = {
         ],
         forms: [
           {
-            rel: 'alternate',
             href: '/media/virtual-things/image.png',
-            mediaType: 'image/png',
+            contentType: 'image/png',
           },
         ],
       },
@@ -737,9 +736,8 @@ const videoCamera = {
         ],
         forms: [
           {
-            rel: 'alternate',
             href: '/media/virtual-things/index.mpd',
-            mediaType: 'application/dash+xml',
+            contentType: 'application/dash+xml',
           },
         ],
       },
@@ -1107,9 +1105,8 @@ if (ffmpegMajor !== null && ffmpegMajor >= 4) {
   }
   if (this.forms) {
     videoCamera.properties[0].metadata.forms.push({
-      rel: 'alternate',
       href: '/media/virtual-things/master.m3u8',
-      mediaType: 'application/vnd.apple.mpegurl',
+      contentType: 'application/vnd.apple.mpegurl',
     });
   }
 }

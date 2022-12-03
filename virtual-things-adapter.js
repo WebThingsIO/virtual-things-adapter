@@ -700,6 +700,12 @@ const camera = {
             mediaType: 'image/png',
           },
         ],
+        forms: [
+          {
+            href: '/media/virtual-things/image.png',
+            contentType: 'image/png',
+          },
+        ],
       },
     },
   ],
@@ -726,6 +732,12 @@ const videoCamera = {
             rel: 'alternate',
             href: '/media/virtual-things/index.mpd',
             mediaType: 'application/dash+xml',
+          },
+        ],
+        forms: [
+          {
+            href: '/media/virtual-things/index.mpd',
+            contentType: 'application/dash+xml',
           },
         ],
       },
@@ -1084,11 +1096,19 @@ const smokeSensor = {
 };
 
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
-  videoCamera.properties[0].metadata.links.push({
-    rel: 'alternate',
-    href: '/media/virtual-things/master.m3u8',
-    mediaType: 'application/vnd.apple.mpegurl',
-  });
+  if (this.links) {
+    videoCamera.properties[0].metadata.links.push({
+      rel: 'alternate',
+      href: '/media/virtual-things/master.m3u8',
+      mediaType: 'application/vnd.apple.mpegurl',
+    });
+  }
+  if (this.forms) {
+    videoCamera.properties[0].metadata.forms.push({
+      href: '/media/virtual-things/master.m3u8',
+      contentType: 'application/vnd.apple.mpegurl',
+    });
+  }
 }
 
 const VIRTUAL_THINGS = [

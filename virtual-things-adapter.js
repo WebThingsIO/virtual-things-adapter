@@ -49,7 +49,7 @@ function getMediaPath(mediaDir) {
   if (process.env.hasOwnProperty('MOZIOT_HOME')) {
     profileDir = process.env.MOZIOT_HOME;
   } else {
-    profileDir = path.join(os.homedir(), '.mozilla-iot');
+    profileDir = path.join(os.homedir(), '.webthings');
   }
 
   return path.join(profileDir, 'media', 'virtual-things');
@@ -64,7 +64,7 @@ function getDataPath(dataDir) {
   if (process.env.hasOwnProperty('MOZIOT_HOME')) {
     profileDir = process.env.MOZIOT_HOME;
   } else {
-    profileDir = path.join(os.homedir(), '.mozilla-iot');
+    profileDir = path.join(os.homedir(), '.webthings');
   }
 
   return path.join(profileDir, 'data', 'virtual-things-adapter');
@@ -693,11 +693,10 @@ const camera = {
         '@type': 'ImageProperty',
         title: 'Image',
         readOnly: true,
-        links: [
+        forms: [
           {
-            rel: 'alternate',
             href: '/media/virtual-things/image.png',
-            mediaType: 'image/png',
+            contentType: 'image/png',
           },
         ],
       },
@@ -721,11 +720,10 @@ const videoCamera = {
         '@type': 'VideoProperty',
         title: 'Video',
         readOnly: true,
-        links: [
+        forms: [
           {
-            rel: 'alternate',
             href: '/media/virtual-things/index.mpd',
-            mediaType: 'application/dash+xml',
+            contentType: 'application/dash+xml',
           },
         ],
       },
@@ -1084,10 +1082,9 @@ const smokeSensor = {
 };
 
 if (ffmpegMajor !== null && ffmpegMajor >= 4) {
-  videoCamera.properties[0].metadata.links.push({
-    rel: 'alternate',
+  videoCamera.properties[0].metadata.forms.push({
     href: '/media/virtual-things/master.m3u8',
-    mediaType: 'application/vnd.apple.mpegurl',
+    contentType: 'application/vnd.apple.mpegurl',
   });
 }
 

@@ -46,8 +46,8 @@ function getMediaPath(mediaDir) {
   }
 
   let profileDir;
-  if (process.env.hasOwnProperty('MOZIOT_HOME')) {
-    profileDir = process.env.MOZIOT_HOME;
+  if (process.env.hasOwnProperty('WEBTHINGS_HOME')) {
+    profileDir = process.env.WEBTHINGS_HOME;
   } else {
     profileDir = path.join(os.homedir(), '.webthings');
   }
@@ -193,7 +193,7 @@ function level(readOnly) {
 
 const onOffColorLight = {
   type: 'onOffColorLight',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'Light', 'ColorControl'],
   name: 'Virtual On/Off Color Light',
   properties: [
@@ -206,7 +206,7 @@ const onOffColorLight = {
 
 const onOffColorTemperatureLight = {
   type: 'onOffColorLight',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'Light', 'ColorControl'],
   name: 'Virtual On/Off Color Temperature Light',
   properties: [
@@ -219,7 +219,7 @@ const onOffColorTemperatureLight = {
 
 const dimmableColorLight = {
   type: 'dimmableColorLight',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'Light', 'ColorControl'],
   name: 'Virtual Dimmable Color Light',
   properties: [
@@ -235,7 +235,7 @@ const dimmableColorLight = {
 
 const multiLevelSwitch = {
   type: 'multiLevelSwitch',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'MultiLevelSwitch'],
   name: 'Virtual Multi-level Switch',
   properties: [
@@ -248,7 +248,7 @@ const multiLevelSwitch = {
 
 const onOffSwitch = {
   type: 'onOffSwitch',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch'],
   name: 'Virtual On/Off Switch',
   properties: [
@@ -260,7 +260,7 @@ const onOffSwitch = {
 
 const binarySensor = {
   type: 'binarySensor',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['BinarySensor'],
   name: 'Virtual Binary Sensor',
   properties: [
@@ -272,7 +272,7 @@ const binarySensor = {
 
 const multiLevelSensor = {
   type: 'multiLevelSensor',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['MultiLevelSensor'],
   name: 'Virtual Multi-level Sensor',
   properties: [
@@ -285,7 +285,7 @@ const multiLevelSensor = {
 
 const smartPlug = {
   type: 'smartPlug',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'EnergyMonitor', 'SmartPlug', 'MultiLevelSwitch'],
   name: 'Virtual Smart Plug',
   properties: [
@@ -354,7 +354,7 @@ const smartPlug = {
 
 const onOffLight = {
   type: 'onOffLight',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'Light'],
   name: 'Virtual On/Off Light',
   properties: [
@@ -366,7 +366,7 @@ const onOffLight = {
 
 const dimmableLight = {
   type: 'dimmableLight',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch', 'Light'],
   name: 'Virtual Dimmable Light',
   properties: [
@@ -378,7 +378,7 @@ const dimmableLight = {
 };
 
 const doorSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['DoorSensor'],
   name: 'Virtual Door Sensor',
   properties: [
@@ -398,7 +398,7 @@ const doorSensor = {
 };
 
 const motionSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['MotionSensor'],
   name: 'Virtual Motion Sensor',
   properties: [
@@ -418,7 +418,7 @@ const motionSensor = {
 };
 
 const leakSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['LeakSensor'],
   name: 'Virtual Leak Sensor',
   properties: [
@@ -438,7 +438,7 @@ const leakSensor = {
 };
 
 const temperatureSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['TemperatureSensor'],
   name: 'Virtual Temperature Sensor',
   properties: [
@@ -461,7 +461,7 @@ const temperatureSensor = {
 };
 
 const pushButton = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['PushButton'],
   name: 'Virtual Push Button',
   properties: [
@@ -482,7 +482,7 @@ const pushButton = {
 
 const thing = {
   type: 'thing',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': [],
   name: 'Virtual Thing',
   properties: [
@@ -559,7 +559,7 @@ const thing = {
 
 const actionsEventsThing = {
   type: 'thing',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': [],
   name: 'Virtual Actions & Events Thing',
   properties: [],
@@ -652,7 +652,7 @@ const actionsEventsThing = {
 
 const onOffSwitchWithPin = {
   type: 'onOffSwitch',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch'],
   name: 'Virtual On/Off Switch (with PIN)',
   properties: [
@@ -668,7 +668,7 @@ const onOffSwitchWithPin = {
 
 const onOffSwitchWithCredentials = {
   type: 'onOffSwitch',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['OnOffSwitch'],
   name: 'Virtual On/Off Switch (with credentials)',
   properties: [
@@ -681,7 +681,7 @@ const onOffSwitchWithCredentials = {
 
 const camera = {
   type: 'thing',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['Camera'],
   name: 'Virtual Camera',
   properties: [
@@ -708,7 +708,7 @@ const camera = {
 
 const videoCamera = {
   type: 'thing',
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['VideoCamera'],
   name: 'Virtual Video Camera',
   properties: [
@@ -742,7 +742,7 @@ const videoCamera = {
 };
 
 const alarm = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['Alarm'],
   name: 'Virtual Alarm',
   properties: [
@@ -787,7 +787,7 @@ const alarm = {
 };
 
 const energyMonitor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['EnergyMonitor'],
   name: 'Virtual Energy Monitor',
   properties: [
@@ -853,7 +853,7 @@ const energyMonitor = {
 };
 
 const colorControl = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['ColorControl'],
   name: 'Virtual Color Control',
   properties: [
@@ -864,7 +864,7 @@ const colorControl = {
 };
 
 const thermostat = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['Thermostat', 'TemperatureSensor'],
   name: 'Virtual Thermostat',
   properties: [
@@ -934,7 +934,7 @@ const thermostat = {
 };
 
 const lock = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['Lock'],
   name: 'Virtual Lock',
   properties: [
@@ -972,7 +972,7 @@ const lock = {
 };
 
 const colorSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['ColorSensor'],
   name: 'Virtual Color Sensor',
   properties: [
@@ -983,7 +983,7 @@ const colorSensor = {
 };
 
 const humiditySensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['HumiditySensor'],
   name: 'Virtual Humidity Sensor',
   properties: [
@@ -1006,7 +1006,7 @@ const humiditySensor = {
 };
 
 const airQualitySensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['AirQualitySensor'],
   name: 'Virtual Air Quality Sensor',
   properties: [
@@ -1040,7 +1040,7 @@ const airQualitySensor = {
 };
 
 const barometricPressureSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['BarometricPressureSensor'],
   name: 'Virtual Barometric Pressure Sensor',
   properties: [
@@ -1062,7 +1062,7 @@ const barometricPressureSensor = {
 };
 
 const smokeSensor = {
-  '@context': 'https://iot.mozilla.org/schemas',
+  '@context': 'https://webthings.io/schemas',
   '@type': ['SmokeSensor'],
   name: 'Virtual Smoke Sensor',
   properties: [
@@ -1603,7 +1603,7 @@ class VirtualThingsAdapter extends Adapter {
 
         const newDescr = {
           type: 'thing',
-          '@context': descr['@context'] || 'https://iot.mozilla.org/schemas',
+          '@context': descr['@context'] || 'https://webthings.io/schemas',
           '@type': descr['@type'] || [],
           name: descr.name,
           properties: [],

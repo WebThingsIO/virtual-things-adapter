@@ -6,7 +6,7 @@
       "exec": "{nodeLoader} {path}",
       "primary_type": "adapter",
       "strict_max_version": "*",
-      "strict_min_version": "0.10.0"
+      "strict_min_version": "2.0.0-beta.1"
     }
   },
   "homepage_url": "https://github.com/WebThingsIO/virtual-things-adapter",

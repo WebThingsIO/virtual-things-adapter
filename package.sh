@@ -4,6 +4,9 @@ rm -rf node_modules
 
 npm install --production
 
+# Remove internal package-lock cache which can cause checksum errors at runtime
+rm -f node_modules/.package-lock.json
+
 shasum --algorithm 256 manifest.json package.json *.js LICENSE > SHA256SUMS
 find static -type f -exec shasum --algorithm 256 {} \; >> SHA256SUMS
 

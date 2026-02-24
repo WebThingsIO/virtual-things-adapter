@@ -417,6 +417,26 @@ const motionSensor = {
   events: [],
 };
 
+const occupancySensor = {
+  '@context': 'https://webthings.io/schemas',
+  '@type': ['OccupancySensor'],
+  name: 'Virtual Occupancy Sensor',
+  properties: [
+    {
+      name: 'occupied',
+      value: false,
+      metadata: {
+        title: 'Occupied',
+        type: 'boolean',
+        '@type': 'OccupiedProperty',
+        readOnly: true,
+      },
+    },
+  ],
+  actions: [],
+  events: [],
+};
+
 const leakSensor = {
   '@context': 'https://webthings.io/schemas',
   '@type': ['LeakSensor'],
@@ -1120,6 +1140,7 @@ const VIRTUAL_THINGS = [
   airQualitySensor,
   barometricPressureSensor,
   smokeSensor,
+  occupancySensor,
 ];
 
 /**

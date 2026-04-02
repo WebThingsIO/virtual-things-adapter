@@ -2,7 +2,7 @@
 
 rm -rf node_modules
 
-npm install --production
+npm ci --production
 
 # Remove internal package-lock cache which can cause checksum errors at runtime
 rm -f node_modules/.package-lock.json

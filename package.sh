@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-rm -rf node_modules
-
 npm ci --production
+# Rebuild sqlite3 for the version of glibc shipped with this OS
+npm rebuild sqlite3 --build-from-source
 
 # Remove internal package-lock cache which can cause checksum errors at runtime
 rm -f node_modules/.package-lock.json
